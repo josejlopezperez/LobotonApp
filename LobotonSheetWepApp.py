@@ -1,3 +1,4 @@
+from os import path
 import streamlit as st
 from PIL import Image
 import pandas as pd
@@ -13,7 +14,7 @@ class LobotonSheetWepApp():
         # st.set_page_config(layout="wide")
         st.title("Loboton Sheet")
         if 'courtInfo' not in st.session_state:
-            with open('.\Resources\court1.csv', newline='') as csvFile:
+            with open(path.join(path.abspath('Resources'), 'court1.csv'), newline='') as csvFile:
                 spamReader  = csv.reader(csvFile, delimiter=',', quotechar='|')
                 st.session_state.courtInfo = CourtInfo(spamReader)
         if 'winnerTeam' not in st.session_state:
@@ -23,7 +24,7 @@ class LobotonSheetWepApp():
         
     def Window1(self):
         for player in st.session_state.courtInfo.players:
-            st.image(Image.open('./Resources/person.jpg'), caption=player.name, width=100)
+            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=player.name, width=100)
         st.button("Start", type="primary", on_click=GoWindows2)
         # start = CTK.CTkButton(self.__window1, text='Start', command=self.GoWindows2)
         # start.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
