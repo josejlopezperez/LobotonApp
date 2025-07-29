@@ -4,12 +4,8 @@ from PIL import Image
 import pandas as pd
 import csv
 import io
+from datetime import datetime
 from Src.CourtInfo import CourtInfo
-
-if 'page' not in st.session_state: st.session_state.page = 0
-def firstPage(): st.session_state.page = 0
-def secondPage(): st.session_state.page = 1
-def thirdPage(): st.session_state.page = 2
 
 class LobotonSheetWepApp():
     def __init__(self):
@@ -28,29 +24,31 @@ class LobotonSheetWepApp():
             st.session_state.winnerTeam = None
         st.header(st.session_state.courtInfo.name)
         
-        
     def Window1(self):
         if 'courtInfo' not in st.session_state: return
-        gameIdx = 1
         col1, col2 = st.columns(2)
-        with col1:
-            for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                with st.container():
-                    col3, col4 = st.columns(2, vertical_alignment="center")
-                    with col3:
-                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                    with col4:
-                        st.markdown(f'**{player.name}**')
-        with col2:
-            for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                with st.container():
-                    col3, col4 = st.columns(2, vertical_alignment="center")
-                    with col3:
-                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                    with col4:
-                        st.markdown(f'**{player.name}**')
-        st.button("Start", type="primary", on_click=secondPage)
-        
+        for idx, player in enumerate(st.session_state.courtInfo.players):
+            if idx % 2 == 0:
+                with col1:
+                    with st.container():
+                        col3, col4 = st.columns(2, vertical_alignment="center")
+                        with col3:
+                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                        with col4:
+                            st.markdown(f'**{player.name}**')
+            else:
+                with col2:
+                    with st.container():
+                        col3, col4 = st.columns(2, vertical_alignment="center")
+                        with col3:
+                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                        with col4:
+                            st.markdown(f'**{player.name}**')
+        st.button("Start", type="primary", on_click=self.secondPage)
+
+    def secondPage(self): 
+        st.session_state.page = 1
+
     def Window2(self):
         nCombination = len(st.session_state.courtInfo.teams['Team 1'])
         gameIdx = (st.session_state.courtInfo.gameIdx % nCombination) if (st.session_state.courtInfo.gameIdx % nCombination) != 0 else nCombination
@@ -59,6 +57,7 @@ class LobotonSheetWepApp():
         st.subheader(f'Game #{st.session_state.courtInfo.gameIdx}')
         col1, col2 = st.columns(2)
         with col1:
+            st.markdown('Team 1')
             for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
                 text = f'**{player.name}**' if player in st.session_state.courtInfo.teams['Team 1'][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
                 with st.container():
@@ -68,6 +67,7 @@ class LobotonSheetWepApp():
                     with col4:
                         st.markdown(text)
         with col2:
+            st.markdown('Team 2')
             for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
                 text = f'**{player.name}**' if player in st.session_state.courtInfo.teams['Team 2'][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
                 with st.container():
@@ -116,38 +116,45 @@ class LobotonSheetWepApp():
         except:
             st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
         st.session_state.courtInfo.Finish()
-        thirdPage()
+        self.thirdPage()
+
+    def thirdPage(self): 
+        st.session_state.page = 2
 
     def Window3(self):
-        gameIdx = 1
+        info = []
         st.subheader(f'Results: ')
+        sortedPlayers = sorted(st.session_state.courtInfo.players, key=lambda x: x.wonGames, reverse=True)
         col1, col2 = st.columns(2)
-        with col1:
-            for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                with st.container():
-                    col3, col4 = st.columns(2, vertical_alignment="center")
-                    with col3:
-                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                    with col4:
-                        st.markdown(f'{player.name} won {player.wonGames} of {st.session_state.courtInfo.NGames} games')
-        with col2:
-            for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                with st.container():
-                    col3, col4 = st.columns(2, vertical_alignment="center")
-                    with col3:
-                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                    with col4:
-                        st.markdown(f'{player.name} won {player.wonGames} of {st.session_state.courtInfo.NGames} games')
-
-    # def SendResults(self):
-    #     self.__window1.destroy()
-    #     with open('.\Resources\court3.csv', newline='') as csvFile:
-    #         spamReader  = csv.reader(csvFile, delimiter=',', quotechar='|')
-    #         self.__courtInfo = CourtInfo(spamReader)
-    #     self.Window1()
-
+        for idx, player in enumerate(sortedPlayers):
+            if idx % 2 == 0:
+                with col1:
+                    with st.container():
+                        col3, col4 = st.columns(2, vertical_alignment="center")
+                        with col3:
+                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                        with col4:
+                            st.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
+            else:
+                with col2:
+                    with st.container():
+                        col3, col4 = st.columns(2, vertical_alignment="center")
+                        with col3:
+                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                        with col4:
+                            st.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
+            info.append({"Player": player.name, "Games won": f'{player.wonGames} / {st.session_state.courtInfo.NGames}'})
+        df = pd.DataFrame(info)
+        csv = df.to_csv(index=False)
+        st.download_button(
+            label="Download Results",
+            data=csv,
+            file_name=f'results_{st.session_state.courtInfo.name}_{datetime.now().strftime("%Y_%m_%d_%H_%M_%S")}.csv',
+            mime='text/csv'
+        )
         
 if __name__ == '__main__':
+    if 'page' not in st.session_state: st.session_state.page = 0
     lobotonSheet = LobotonSheetWepApp()
     if st.session_state.page == 0:
         lobotonSheet.Window1()
