@@ -60,21 +60,23 @@ class LobotonSheetWepApp():
         col1, col2 = st.columns(2)
         with col1:
             for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
+                text = f'**{player.name}**' if player in st.session_state.courtInfo.teams['Team 1'][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
                 with st.container():
                     col3, col4 = st.columns(2, vertical_alignment="center")
                     with col3:
                         st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
                     with col4:
-                        st.markdown(f'**{player.name}**')
+                        st.markdown(text)
         with col2:
             for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
+                text = f'**{player.name}**' if player in st.session_state.courtInfo.teams['Team 2'][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
                 with st.container():
                     col3, col4 = st.columns(2, vertical_alignment="center")
                     with col3:
                         st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
                     with col4:
-                        st.markdown(f'**{player.name}**')
-        
+                        st.markdown(text)
+
         if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
             st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
         if st.session_state.winnerTeam == 'Team 1': 
