@@ -3,6 +3,7 @@ import streamlit as st
 from PIL import Image
 import pandas as pd
 import csv
+import io
 from Src.CourtInfo import CourtInfo
 
 if 'page' not in st.session_state: st.session_state.page = 0
@@ -15,23 +16,36 @@ class LobotonSheetWepApp():
         # st.set_page_config(layout="wide")
         st.title("Loboton Sheet")
         if 'courtInfo' not in st.session_state:
-            with open(path.join(path.abspath('Resources'), 'court1.csv'), newline='') as csvFile:
-                spamReader  = csv.reader(csvFile, delimiter=',', quotechar='|')
-                st.session_state.courtInfo = CourtInfo(spamReader)
+            uploaded_court = st.file_uploader("Upload a court file", type=["csv"])
+            if uploaded_court is None: return
+            csv_data = uploaded_court.read().decode('utf-8')
+            spamReader  = csv.reader(io.StringIO(csv_data), delimiter=',', quotechar='"')
+            st.session_state.courtInfo = CourtInfo(spamReader)
         if 'winnerTeam' not in st.session_state:
             st.session_state.winnerTeam = None
         st.header(st.session_state.courtInfo.name)
         
         
     def Window1(self):
+        if 'courtInfo' not in st.session_state: return
         gameIdx = 1
-        col1, col2 = st.columns(2, vertical_alignment="center")
+        col1, col2 = st.columns(2)
         with col1:
             for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=player.name, width=50)
+                with st.container():
+                    col3, col4 = st.columns(2, vertical_alignment="center")
+                    with col3:
+                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                    with col4:
+                        st.markdown(f'**{player.name}**')
         with col2:
             for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=player.name, width=50)
+                with st.container():
+                    col3, col4 = st.columns(2, vertical_alignment="center")
+                    with col3:
+                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                    with col4:
+                        st.markdown(f'**{player.name}**')
         st.button("Start", type="primary", on_click=secondPage)
         
     def Window2(self):
@@ -96,28 +110,10 @@ class LobotonSheetWepApp():
         col1, col2 = st.columns(2, vertical_alignment="center")
         with col1:
             for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=f'{player.name} : {player.wonGames}/{st.session_state.courtInfo.gameIdx}', width=50)
+                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=f'{player.name}: {player.wonGames}/{st.session_state.courtInfo.NGames}', width=50)
         with col2:
             for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=f'{player.name} : {player.wonGames}/{st.session_state.courtInfo.gameIdx}', width=50)
-
-    #     self.__window1 = CTK.CTkFrame(self)
-    #     self.__window1.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-    #     self.__window1.grid_rowconfigure(1, weight=1)
-    #     self.__window1.grid_columnconfigure(0, weight=1)  
-        
-    #     CTK.CTkLabel(self.__window1, text= f'Results of {self.__courtInfo.name}').grid(row=0, column=0, sticky="nsew", padx=1, pady=1)
-    #     self.__teamPlayers = CTK.CTkFrame(self.__window1)
-    #     self.__teamPlayers.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
-    #     self.__teamPlayers.grid_columnconfigure((1,2), weight=1)  
-    #     self.__teamPlayers.grid_rowconfigure(tuple(range(len(self.__courtInfo.players))), weight=1) 
-    #     for i,player in enumerate(self.__courtInfo.players):
-    #         img = CTK.CTkImage(light_image=Image.open('./Resources/person.jpg'),dark_image=Image.open('./Resources/person.jpg'),size=(50, 50))
-    #         CTK.CTkLabel(self.__teamPlayers, image=img, text='').grid(row=i, column=0, sticky="nsew", padx=5, pady=5)
-    #         CTK.CTkLabel(self.__teamPlayers, text=player.name, fg_color='gray').grid(row=i, column=1, sticky="nsew", padx=5, pady=5)
-    #         CTK.CTkLabel(self.__teamPlayers, text=f'{player.wonGames}/{self.__courtInfo.gameIdx}', fg_color='gray').grid(row=i, column=2, sticky="nsew", padx=5, pady=5)
-    #     send = CTK.CTkButton(self.__window1, text='Send', command=self.SendResults)
-    #     send.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)   
+                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=f'{player.name}: {player.wonGames}/{st.session_state.courtInfo.NGames}', width=50) 
     
     # def SendResults(self):
     #     self.__window1.destroy()

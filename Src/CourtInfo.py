@@ -25,6 +25,10 @@ class CourtInfo():
                     except:
                         self.teams['Team 2'][str(gameIdx + 1)] = [self.players[-1]]
     
+    @property
+    def NGames(self):
+        return len(self.winnerTeam)
+    
     def Finish(self):
         nGames = len(self.teams['Team 1'])
         for gameNum, team in enumerate(self.winnerTeam):
