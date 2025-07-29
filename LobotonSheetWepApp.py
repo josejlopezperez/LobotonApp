@@ -13,7 +13,10 @@ def thirdPage(): st.session_state.page = 2
 
 class LobotonSheetWepApp():
     def __init__(self):
-        # st.set_page_config(layout="wide")
+        st.set_page_config(page_title="Loboton Sheet", page_icon=":tennis:",
+                           menu_items={'About': '''**Loboton Sheet**:
+                            This is a web app to manage Loboton games. It allows you to upload a court file, view players, and record game results.
+                            You can find more information about Loboton at [Loboton](https://www.loboton.com/).'''})
         st.title("Loboton Sheet")
         if 'courtInfo' not in st.session_state:
             uploaded_court = st.file_uploader("Upload a court file", type=["csv"])
@@ -54,15 +57,23 @@ class LobotonSheetWepApp():
         prevGameIdx = gameIdx if (st.session_state.courtInfo.gameIdx == 1) else  gameIdx - 1 if gameIdx - 1 > 0 else nCombination
 
         st.subheader(f'Game #{st.session_state.courtInfo.gameIdx}')
-        col1, col2 = st.columns(2, vertical_alignment="center")
+        col1, col2 = st.columns(2)
         with col1:
-            st.markdown(f'Team 1')
             for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=player.name, width=50)
+                with st.container():
+                    col3, col4 = st.columns(2, vertical_alignment="center")
+                    with col3:
+                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                    with col4:
+                        st.markdown(f'**{player.name}**')
         with col2:
-            st.markdown(f'Team 2')
             for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=player.name, width=50)
+                with st.container():
+                    col3, col4 = st.columns(2, vertical_alignment="center")
+                    with col3:
+                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                    with col4:
+                        st.markdown(f'**{player.name}**')
         
         if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
             st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
@@ -107,14 +118,25 @@ class LobotonSheetWepApp():
 
     def Window3(self):
         gameIdx = 1
-        col1, col2 = st.columns(2, vertical_alignment="center")
+        st.subheader(f'Results: ')
+        col1, col2 = st.columns(2)
         with col1:
             for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=f'{player.name}: {player.wonGames}/{st.session_state.courtInfo.NGames}', width=50)
+                with st.container():
+                    col3, col4 = st.columns(2, vertical_alignment="center")
+                    with col3:
+                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                    with col4:
+                        st.markdown(f'{player.name} won {player.wonGames} of {st.session_state.courtInfo.NGames} games')
         with col2:
             for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), caption=f'{player.name}: {player.wonGames}/{st.session_state.courtInfo.NGames}', width=50) 
-    
+                with st.container():
+                    col3, col4 = st.columns(2, vertical_alignment="center")
+                    with col3:
+                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                    with col4:
+                        st.markdown(f'{player.name} won {player.wonGames} of {st.session_state.courtInfo.NGames} games')
+
     # def SendResults(self):
     #     self.__window1.destroy()
     #     with open('.\Resources\court3.csv', newline='') as csvFile:
