@@ -26,24 +26,13 @@ class LobotonSheetWepApp():
         
     def Window1(self):
         if 'courtInfo' not in st.session_state: return
-        col1, col2 = st.columns(2)
+        column1, column2 = st.columns(2)
         for idx, player in enumerate(st.session_state.courtInfo.players):
-            if idx % 2 == 0:
-                with col1:
-                    with st.container():
-                        col3, col4 = st.columns(2, vertical_alignment="center")
-                        with col3:
-                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                        with col4:
-                            st.markdown(f'**{player.name}**')
-            else:
-                with col2:
-                    with st.container():
-                        col3, col4 = st.columns(2, vertical_alignment="center")
-                        with col3:
-                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                        with col4:
-                            st.markdown(f'**{player.name}**')
+            column = column1 if idx % 2 == 0 else column2
+            container = column.container()
+            column3, column4 = container.columns(2, vertical_alignment="center")
+            column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+            column4.markdown(f'**{player.name}**')
         st.button("Start", type="primary", on_click=self.secondPage)
 
     def secondPage(self): 
@@ -55,27 +44,17 @@ class LobotonSheetWepApp():
         prevGameIdx = gameIdx if (st.session_state.courtInfo.gameIdx == 1) else  gameIdx - 1 if gameIdx - 1 > 0 else nCombination
 
         st.subheader(f'Game #{st.session_state.courtInfo.gameIdx}')
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('Team 1')
-            for player in st.session_state.courtInfo.teams['Team 1'][str(gameIdx)]:
-                text = f'**{player.name}**' if player in st.session_state.courtInfo.teams['Team 1'][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
-                with st.container():
-                    col3, col4 = st.columns(2, vertical_alignment="center")
-                    with col3:
-                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                    with col4:
-                        st.markdown(text)
-        with col2:
-            st.markdown('Team 2')
-            for player in st.session_state.courtInfo.teams['Team 2'][str(gameIdx)]:
-                text = f'**{player.name}**' if player in st.session_state.courtInfo.teams['Team 2'][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
-                with st.container():
-                    col3, col4 = st.columns(2, vertical_alignment="center")
-                    with col3:
-                        st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                    with col4:
-                        st.markdown(text)
+        column1, column2 = st.columns(2)
+        for idx in range(2):
+            column = column1 if idx == 0 else column2
+            teamName = 'Team 1' if idx == 0 else 'Team 2'
+            column.markdown(teamName)
+            for player in st.session_state.courtInfo.teams[teamName][str(gameIdx)]:
+                text = f'**{player.name}**' if player in st.session_state.courtInfo.teams[teamName][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
+                container = column.container()
+                column3, column4 = container.columns(2, vertical_alignment="center")
+                column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                column4.markdown(text)
 
         if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
             st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
@@ -85,12 +64,10 @@ class LobotonSheetWepApp():
             st.session_state.winnerTeam = st.radio(f"Who won the Game #{st.session_state.courtInfo.gameIdx}:",["Team 1", "Team 2"], horizontal=True, index=1)
         else:
             st.session_state.winnerTeam = st.radio(f"Who won the Game #{st.session_state.courtInfo.gameIdx}:",["Team 1", "Team 2"], horizontal=True, index=None)
-        
-        col1, col2 = st.columns(2, vertical_alignment="center")
-        with col1:
-            st.button("Prev Game", on_click=self.PrevGame, disabled= st.session_state.winnerTeam == None)
-        with col2:
-            st.button("Next Game", on_click=self.NextGame, disabled= st.session_state.winnerTeam == None)
+
+        column1, column2 = st.columns(2, vertical_alignment="center")
+        column1.button("Prev Game", on_click=self.PrevGame, disabled= st.session_state.winnerTeam == None)
+        column2.button("Next Game", on_click=self.NextGame, disabled= st.session_state.winnerTeam == None)
         st.button("Finish Loboton", on_click=self.FinishLoboton, disabled= st.session_state.winnerTeam == None)
 
     def NextGame(self):
@@ -116,51 +93,29 @@ class LobotonSheetWepApp():
         except:
             st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
         st.session_state.courtInfo.Finish()
-        self.thirdPage()
-
-    def thirdPage(self): 
-        st.session_state.page = 2
+        st.session_state.page = 2 
 
     def Window3(self):
         info = []
         st.subheader(f'Results: ')
         sortedPlayers = sorted(st.session_state.courtInfo.players, key=lambda x: x.wonGames, reverse=True)
-        col1, col2 = st.columns(2)
+        column1, column2 = st.columns(2)
         for idx, player in enumerate(sortedPlayers):
-            if idx % 2 == 0:
-                with col1:
-                    with st.container():
-                        col3, col4 = st.columns(2, vertical_alignment="center")
-                        with col3:
-                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                        with col4:
-                            st.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
-            else:
-                with col2:
-                    with st.container():
-                        col3, col4 = st.columns(2, vertical_alignment="center")
-                        with col3:
-                            st.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
-                        with col4:
-                            st.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
+            column = column1 if idx % 2 == 0 else column2
+            container = column.container()
+            column3, column4 = container.columns(2, vertical_alignment="center")
+            column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+            column4.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
             info.append({"Player": player.name, "Games won": f'{player.wonGames} / {st.session_state.courtInfo.NGames}'})
         df = pd.DataFrame(info)
         csv = df.to_csv(index=False)
-        st.download_button(
+        column1.download_button(
             label="Download Results",
             data=csv,
             file_name=f'results_{st.session_state.courtInfo.name}_{datetime.now().strftime("%Y_%m_%d_%H_%M_%S")}.csv',
             mime='text/csv'
         )
-        
-if __name__ == '__main__':
-    if 'page' not in st.session_state: st.session_state.page = 0
-    lobotonSheet = LobotonSheetWepApp()
-    if st.session_state.page == 0:
-        lobotonSheet.Window1()
-    elif st.session_state.page == 1:
-        lobotonSheet.Window2()
-    elif st.session_state.page == 2:
-        lobotonSheet.Window3()
-        
+        column2.button("Send Results", on_click=self.SendEmail, disabled= True)
     
+    def SendEmail(self):
+        pass
