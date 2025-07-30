@@ -39,9 +39,11 @@ class LobotonSheetWepApp():
         st.session_state.page = 1
 
     def Window2(self):
-        nCombination = len(st.session_state.courtInfo.teams['Team 1'])
+        nCombination = st.session_state.courtInfo.nCombination
+        game = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1]
         gameIdx = (st.session_state.courtInfo.gameIdx % nCombination) if (st.session_state.courtInfo.gameIdx % nCombination) != 0 else nCombination
         prevGameIdx = gameIdx if (st.session_state.courtInfo.gameIdx == 1) else  gameIdx - 1 if gameIdx - 1 > 0 else nCombination
+        prevGame = st.session_state.courtInfo.games[prevGameIdx - 1]
 
         st.subheader(f'Game #{st.session_state.courtInfo.gameIdx}')
         column1, column2 = st.columns(2)
@@ -49,8 +51,25 @@ class LobotonSheetWepApp():
             column = column1 if idx == 0 else column2
             teamName = 'Team 1' if idx == 0 else 'Team 2'
             column.markdown(teamName)
-            for player in st.session_state.courtInfo.teams[teamName][str(gameIdx)]:
-                text = f'**{player.name}**' if player in st.session_state.courtInfo.teams[teamName][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
+            for player in game.teams[teamName]:
+                if len(st.session_state.courtInfo.players) == 6:
+                    text = f'**{player.name}**' if player in prevGame.teams[teamName] else f':blue-background[**{player.name}**]'
+                elif len(st.session_state.courtInfo.players) == 7:
+                    if player in game.subteams['A']:
+                        text = f':red-background[**{player.name}**]'
+                    elif player in game.subteams['B']:
+                        text = f':green-background[**{player.name}**]'
+                    else:
+                        text = f'**{player.name}**'
+                else:
+                    if player in game.subteams['A']:
+                        text = f':red-background[**{player.name}**]'
+                    elif player in game.subteams['B']:
+                        text = f':green-background[**{player.name}**]'
+                    elif player in game.subteams['C']:
+                        text = f':blue-background[**{player.name}**]'
+                    else:
+                        text = f':orange-background[**{player.name}**]'
                 container = column.container()
                 column3, column4 = container.columns(2, vertical_alignment="center")
                 column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=25)
@@ -69,23 +88,21 @@ class LobotonSheetWepApp():
         st.button("Finish Loboton", on_click=self.FinishLoboton, disabled= st.session_state.winnerTeam == None)
 
     def NextGame(self):
-        try:
-            st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx-1] = st.session_state.winnerTeam
-        except:
-            st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
+        game = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1]
+        game.winnerTeam = st.session_state.winnerTeam
         st.session_state.courtInfo.gameIdx += 1
         if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
             st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
         else:
             st.session_state.winnerTeam = None
+        if st.session_state.courtInfo.NGames < st.session_state.courtInfo.gameIdx:
+            st.session_state.courtInfo.CreateNewGame()
 
     def PrevGame(self):
-        try:
-            st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx-1] = st.session_state.winnerTeam
-        except:
-            st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
+        game = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1]
+        game.winnerTeam = st.session_state.winnerTeam
         st.session_state.courtInfo.gameIdx -= 1 if st.session_state.courtInfo.gameIdx > 1 else 0
-        st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
+        st.session_state.winnerTeam = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam
 
     def FinishLoboton(self):
         try:
