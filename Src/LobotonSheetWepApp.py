@@ -31,7 +31,7 @@ class LobotonSheetWepApp():
             column = column1 if idx % 2 == 0 else column2
             container = column.container()
             column3, column4 = container.columns(2, vertical_alignment="center")
-            column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+            column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=25)
             column4.markdown(f'**{player.name}**')
         st.button("Start", type="primary", on_click=self.secondPage)
 
@@ -53,11 +53,9 @@ class LobotonSheetWepApp():
                 text = f'**{player.name}**' if player in st.session_state.courtInfo.teams[teamName][str(prevGameIdx)] else f':blue-background[**{player.name}**]'
                 container = column.container()
                 column3, column4 = container.columns(2, vertical_alignment="center")
-                column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+                column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=25)
                 column4.markdown(text)
 
-        if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
-            st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
         if st.session_state.winnerTeam == 'Team 1': 
             st.session_state.winnerTeam = st.radio(f"Who won the Game #{st.session_state.courtInfo.gameIdx}:",["Team 1", "Team 2"], horizontal=True, index=0)
         elif st.session_state.winnerTeam == 'Team 2': 
@@ -76,16 +74,18 @@ class LobotonSheetWepApp():
         except:
             st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
         st.session_state.courtInfo.gameIdx += 1
-        st.session_state.winnerTeam = None
+        if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
+            st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
+        else:
+            st.session_state.winnerTeam = None
 
     def PrevGame(self):
         try:
             st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx-1] = st.session_state.winnerTeam
         except:
             st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
-        if st.session_state.courtInfo.gameIdx == 1: return
-        st.session_state.courtInfo.gameIdx -= 1
-        st.session_state.winnerTeam = None
+        st.session_state.courtInfo.gameIdx -= 1 if st.session_state.courtInfo.gameIdx > 1 else 0
+        st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
 
     def FinishLoboton(self):
         try:
@@ -104,7 +104,7 @@ class LobotonSheetWepApp():
             column = column1 if idx % 2 == 0 else column2
             container = column.container()
             column3, column4 = container.columns(2, vertical_alignment="center")
-            column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=50)
+            column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=25)
             column4.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
             info.append({"Player": player.name, "Games won": f'{player.wonGames} / {st.session_state.courtInfo.NGames}'})
         df = pd.DataFrame(info)
