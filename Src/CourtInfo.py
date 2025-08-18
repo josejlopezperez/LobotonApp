@@ -6,32 +6,46 @@ class CourtInfo():
         self.players = []
         self.gameIdx = 1
         self.winnerTeam = []
-        courtInfo = [row for row in args[0]]
-        self.teams = {'Team 1':{},'Team 2':{}}
-        for rowIdx, playerInfo in enumerate(courtInfo):
+        self.games = []
+        self.gamesTemplate = []
+        self.nCombination = 0
+        for rowIdx, playerInfo in enumerate([row for row in args[0]]):
             if rowIdx == 0: 
                 self.name = playerInfo[0]
+                for gameIdx in range(len(playerInfo[1::])):
+                    self.gamesTemplate.append(Game(gameIdx + 1))
+                self.nCombination = len(playerInfo[1::])
                 continue
             self.players.append(Player(playerInfo[0]))
             for gameIdx, team in enumerate(playerInfo[1::]):
                 if team in ['|','1','A','B']:
-                    try:
-                        self.teams['Team 1'][str(gameIdx + 1)].append(self.players[-1])
-                    except:
-                        self.teams['Team 1'][str(gameIdx + 1)] = [self.players[-1]]
+                    self.gamesTemplate[gameIdx].teams['Team 1'].append(self.players[-1])
+                    if team in ['A','B']:
+                        self.gamesTemplate[gameIdx].subteams[team].append(self.players[-1])
                 else:
-                    try:
-                        self.teams['Team 2'][str(gameIdx + 1)].append(self.players[-1])
-                    except:
-                        self.teams['Team 2'][str(gameIdx + 1)] = [self.players[-1]]
+                    self.gamesTemplate[gameIdx].teams['Team 2'].append(self.players[-1])
+                    if team in ['C','D']:
+                        self.gamesTemplate[gameIdx].subteams[team].append(self.players[-1])
+        self.CreateNewGame()
     
     @property
     def NGames(self):
-        return len(self.winnerTeam)
+        return len(self.games)
+    
+    def CreateNewGame(self):
+        gameIdx = (self.gameIdx % self.nCombination) if (self.gameIdx % self.nCombination) != 0 else self.nCombination
+        self.games.append(Game(self.gameIdx))
+        self.games[-1].teams = self.gamesTemplate[gameIdx].teams.copy()
+        self.games[-1].subteams = self.gamesTemplate[gameIdx].subteams.copy()
     
     def Finish(self):
-        nGames = len(self.teams['Team 1'])
-        for gameNum, team in enumerate(self.winnerTeam):
-            gameIdx = ((gameNum + 1) % nGames) if ((gameNum + 1) % nGames) != 0 else nGames
-            for player in self.teams[team][str(gameIdx)]:
+        for game in self.games:
+            for player in game.teams[game.winnerTeam]:
                 player.wonGames += 1
+                
+class Game():
+    def __init__(self,*args):
+        self.teams = {'Team 1':[], 'Team 2':[]}
+        self.subteams = {'A':[], 'B':[], 'C':[], 'D':[]}
+        self.winnerTeam = ''
+        self.gameIdx = args[0] if args else 1
