@@ -88,8 +88,7 @@ class LobotonSheetWepApp():
         st.button("Finish Loboton", on_click=self.FinishLoboton, disabled= st.session_state.winnerTeam == None)
 
     def NextGame(self):
-        game = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1]
-        game.winnerTeam = st.session_state.winnerTeam
+        st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam = st.session_state.winnerTeam
         st.session_state.courtInfo.gameIdx += 1
         if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
             st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
@@ -99,16 +98,12 @@ class LobotonSheetWepApp():
             st.session_state.courtInfo.CreateNewGame()
 
     def PrevGame(self):
-        game = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1]
-        game.winnerTeam = st.session_state.winnerTeam
+        st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam = st.session_state.winnerTeam
         st.session_state.courtInfo.gameIdx -= 1 if st.session_state.courtInfo.gameIdx > 1 else 0
         st.session_state.winnerTeam = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam
 
     def FinishLoboton(self):
-        try:
-            st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx-1] = st.session_state.winnerTeam
-        except:
-            st.session_state.courtInfo.winnerTeam.append(st.session_state.winnerTeam)
+        st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam = st.session_state.winnerTeam
         st.session_state.courtInfo.Finish()
         st.session_state.page = 2 
 
