@@ -90,8 +90,8 @@ class LobotonSheetWepApp():
     def NextGame(self):
         st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam = st.session_state.winnerTeam
         st.session_state.courtInfo.gameIdx += 1
-        if len(st.session_state.courtInfo.winnerTeam) >= st.session_state.courtInfo.gameIdx:
-            st.session_state.winnerTeam = st.session_state.courtInfo.winnerTeam[st.session_state.courtInfo.gameIdx - 1]
+        if len(st.session_state.courtInfo.games) >= st.session_state.courtInfo.gameIdx:
+            st.session_state.winnerTeam = st.session_state.courtInfo.games[st.session_state.courtInfo.gameIdx - 1].winnerTeam
         else:
             st.session_state.winnerTeam = None
         if st.session_state.courtInfo.NGames < st.session_state.courtInfo.gameIdx:

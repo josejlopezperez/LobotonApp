@@ -5,7 +5,6 @@ class CourtInfo():
         self.name = ''
         self.players = []
         self.gameIdx = 1
-        self.winnerTeam = []
         self.games = []
         self.gamesTemplate = []
         self.nCombination = 0
@@ -35,8 +34,8 @@ class CourtInfo():
     def CreateNewGame(self):
         gameIdx = (self.gameIdx % self.nCombination) if (self.gameIdx % self.nCombination) != 0 else self.nCombination
         self.games.append(Game(self.gameIdx))
-        self.games[-1].teams = self.gamesTemplate[gameIdx].teams.copy()
-        self.games[-1].subteams = self.gamesTemplate[gameIdx].subteams.copy()
+        self.games[-1].teams = self.gamesTemplate[gameIdx - 1].teams.copy()
+        self.games[-1].subteams = self.gamesTemplate[gameIdx - 1].subteams.copy()
     
     def Finish(self):
         for game in self.games:
