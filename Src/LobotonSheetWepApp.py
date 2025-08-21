@@ -118,6 +118,7 @@ class LobotonSheetWepApp():
             column3.image(Image.open(path.join(path.abspath('Resources'), 'person.jpg')), width=25)
             column4.markdown(f'{player.name}: {player.wonGames} / {st.session_state.courtInfo.NGames}')
             info.append({"Player": player.name, "Games won": f'{player.wonGames} / {st.session_state.courtInfo.NGames}'})
+        column1, column2 = st.columns(2, vertical_alignment="center")
         df = pd.DataFrame(info)
         csv = df.to_csv(index=False)
         column1.download_button(
